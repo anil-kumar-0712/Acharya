@@ -1,14 +1,10 @@
 import React from 'react';
-import { UserProfile } from '../types';
 
 interface NavbarProps {
-  user: UserProfile | null;
-  onOpenPortal: () => void;
-  onOpenAuth: () => void;
   onNavigate: (section: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user, onOpenPortal, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-10 w-full px-5 sm:px-8 py-5 sm:py-6 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-[2px]">
       {/* Logo (left) */}
@@ -26,19 +22,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onOpenPortal, onNavigate }
           ✳︎
         </span>
       </div>
-
-      {/* If logged in, optional subtle logged-in status pill on far right if desired, or keep top clean */}
-      {user && (
-        <button
-          onClick={onOpenPortal}
-          className="flex items-center gap-2 bg-zinc-900/90 border border-white/20 hover:border-white/50 text-white text-xs px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow backdrop-blur-md"
-          title="Open Career Portal Dashboard"
-        >
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="font-semibold">{user.name}</span>
-          <span className="text-white/40">({user.level ? user.level.split(' ')[0] : 'Member'})</span>
-        </button>
-      )}
     </header>
   );
 };

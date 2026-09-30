@@ -16,7 +16,7 @@ export function App() {
   const [portalOpen, setPortalOpen] = useState(false);
   const [portalTab, setPortalTab] = useState<'my-roadmap' | 'advisor' | 'analytics' | 'roadmaps' | 'settings'>('advisor');
 
-  // Load persistent user profile & roadmap from localStorage on load
+  // Load persistent user profile & roadmap from localStorage if needed
   useEffect(() => {
     const savedUser = localStorage.getItem('acharya_user');
     const savedRoadmap = localStorage.getItem('acharya_roadmap');
@@ -64,7 +64,7 @@ export function App() {
   };
 
   const handleGetStarted = () => {
-    // Clicking Get Started opens the Login and Register page
+    // Clicking Get Started ALWAYS opens the Login and Register page
     setAuthModalOpen(true);
   };
 
@@ -93,19 +93,12 @@ export function App() {
 
       {/* Fixed Clean Navbar (z-index: 10) */}
       <Navbar
-        user={user}
-        onOpenPortal={() => {
-          setPortalTab(roadmap ? 'my-roadmap' : 'advisor');
-          setPortalOpen(true);
-        }}
-        onOpenAuth={() => setAuthModalOpen(true)}
         onNavigate={handleNavigateSection}
       />
 
       {/* Hero Landing Section (z-index: 1) */}
       <main>
         <HeroSection
-          user={user}
           onGetStarted={handleGetStarted}
         />
       </main>

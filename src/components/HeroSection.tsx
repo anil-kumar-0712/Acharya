@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useTypewriter } from '../hooks/useTypewriter';
-import { UserProfile } from '../types';
 
 interface HeroSectionProps {
-  user: UserProfile | null;
   onGetStarted: () => void;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ user, onGetStarted }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
   const [buttonsVisible, setButtonsVisible] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Typewriter sentence customized for Acharya
-  const typewriterText = user
-    ? `Welcome back ${user.name}! Ready to continue your ${user.targetDomain} learning journey?`
-    : "Welcome to Acharya. Your AI-powered personalized career advisor. Ready to shape your path?";
+  // Standard introductory typewriter text for the landing page
+  const typewriterText = "Welcome to Acharya. Your AI-powered personalized career advisor. Ready to shape your path?";
 
   const { displayed, done } = useTypewriter(typewriterText, 38, 600);
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserProfile, PersonalizedRoadmap } from '../types';
 
 interface AcharyaPortalProps {
@@ -16,7 +16,6 @@ interface ChatMessage {
   sender: 'user' | 'aria';
   text: string;
   timestamp: string;
-  roadmapData?: any;
 }
 
 export const AcharyaPortal: React.FC<AcharyaPortalProps> = ({
@@ -34,21 +33,34 @@ export const AcharyaPortal: React.FC<AcharyaPortalProps> = ({
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // AI Chat State
-  const initialGreeting = user
-    ? `Hello ${user.name}! I am A.R.I.A, Acharya's Adaptive Response Interface Agent. I have logged your profile target (${user.targetDomain}) ${user.level ? `with diagnostic level ${user.level}` : ''}. How can I assist your career progression today?`
-    : "Hello! I am A.R.I.A, Acharya's Adaptive Response Interface Agent. I'm here to analyze your background, recommend tailored career paths, generate skill roadmaps, and guide your professional transition. Where shall we begin?";
+  // Dynamic Personalized AI Chat Greeting when opening the Portal
+  const getGreeting = () => {
+    if (user) {
+      return `Welcome back ${user.name}! Ready to continue your ${user.targetDomain} learning journey? I'm A.R.I.A, Acharya's Adaptive Response Interface Agent. How can I assist your career progression today?`;
+    }
+    return "Hello! I am A.R.I.A, Acharya's Adaptive Response Interface Agent. I'm here to analyze your background, recommend tailored career paths, generate skill roadmaps, and guide your professional transition. Where shall we begin?";
+  };
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      sender: 'aria',
-      text: initialGreeting,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  // Update initial message when portal opens with user
+  useEffect(() => {
+    if (isOpen) {
+      setMessages([
+        {
+          id: '1',
+          sender: 'aria',
+          text: getGreeting(),
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+      if (roadmap) {
+        setActiveTab('my-roadmap');
+      }
+    }
+  }, [isOpen, user]);
 
   // General Category filter state for browsing roadmaps
   const [selectedDomainCategory, setSelectedDomainCategory] = useState<string>('ai');
@@ -158,7 +170,7 @@ export const AcharyaPortal: React.FC<AcharyaPortalProps> = ({
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="overflow-hidden flex-1">
-                <div className="text-sm font-semibold text-white truncate">{user.name}</div>
+                <div className="text-sm font-semibold text-white truncate">Welcome back {user.name}!</div>
                 <div className="text-[11px] text-emerald-400 font-medium truncate">
                   {user.level ? user.level.split(' ')[0] : 'Member'} ({user.score ?? 0}/5)
                 </div>
@@ -289,7 +301,7 @@ export const AcharyaPortal: React.FC<AcharyaPortalProps> = ({
           <div className="flex items-center gap-3">
             {user && (
               <span className="text-xs bg-white/10 border border-white/15 px-3 py-1.5 rounded-full text-white/80 hidden sm:inline-block">
-                Domain: <strong className="text-white">{user.targetDomain}</strong>
+                Welcome back, <strong className="text-white">{user.name}</strong> ({user.targetDomain})
               </span>
             )}
 
@@ -321,7 +333,7 @@ export const AcharyaPortal: React.FC<AcharyaPortalProps> = ({
                         <span className="text-xs text-white/50">Score: {user.score}/5</span>
                       </div>
                       <h3 className="text-2xl font-bold text-white">
-                        {user.targetDomain} Track
+                        Welcome back {user.name}! Your {user.targetDomain} Roadmap
                       </h3>
                       <p className="text-xs sm:text-sm text-white/70 leading-relaxed">
                         {roadmap.summary}
