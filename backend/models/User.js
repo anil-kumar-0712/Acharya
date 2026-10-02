@@ -42,13 +42,13 @@ const userSchema = new mongoose.Schema({
     default: '',
   },
   roadmap: {
-    type: Object,
+    type: mongoose.Schema.Types.Mixed,
     default: null,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-});
+}, { collection: 'users' });
 
 export const User = mongoose.model('User', userSchema);

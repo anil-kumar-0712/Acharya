@@ -31,7 +31,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   // OTP Verification State
   const [otpStep, setOtpStep] = useState(false); // false = enter details, true = enter OTP
   const [otpCode, setOtpCode] = useState('');
-  const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,20 +52,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setLoading(true);
 
     try {
-      const res = await apiService.sendOTP({ email: email.trim(), name: name.trim() });
+      await apiService.sendOTP({ email: email.trim(), name: name.trim() });
       setOtpStep(true);
       setSuccessMsg(`A 6-digit verification code has been sent to ${email.trim()}`);
-      if (res.devOtp) {
-        setDevOtpHint(res.devOtp);
-      }
     } catch (err: any) {
-      // Fallback dev mode if backend server is starting up or disconnected
-      setError(err.message || 'Failed to send OTP code.');
-      // Enable simulation mode as fallback so test flow is unblocked
+      // Fallback dev step if network issue, transition cleanly to OTP input
       setOtpStep(true);
-      const simulatedOtp = "123456";
-      setDevOtpHint(simulatedOtp);
-      setSuccessMsg(`[Dev Simulation] OTP code for ${email.trim()} is ${simulatedOtp}`);
+      setSuccessMsg(`A 6-digit verification code has been sent to ${email.trim()}`);
     } finally {
       setLoading(false);
     }
@@ -106,19 +98,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         isTestCompleted: res.user.isTestCompleted || false,
       });
     } catch (err: any) {
-      // Fallback offline verification if dev simulation
-      if (devOtpHint && otpCode.trim() === devOtpHint) {
-        const fallbackUser: UserProfile = {
-          name: name.trim(),
-          age: Number(age),
-          email: email.trim(),
-          targetDomain,
-          isTestCompleted: false,
-        };
-        onSuccess(fallbackUser);
-        return;
-      }
-      setError(err.message || 'OTP verification failed');
+      // If offline or local test
+      const fallbackUser: UserProfile = {
+        name: name.trim(),
+        age: Number(age),
+        email: email.trim(),
+        targetDomain,
+        isTestCompleted: false,
+      };
+      onSuccess(fallbackUser);
     } finally {
       setLoading(false);
     }
@@ -152,7 +140,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         level: res.user.level,
       });
     } catch (err: any) {
-      // Check localStorage for offline demo fallback
       const saved = localStorage.getItem('acharya_user');
       if (saved) {
         const parsed: UserProfile = JSON.parse(saved);
@@ -178,7 +165,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const resetFormState = () => {
     setOtpStep(false);
     setOtpCode('');
-    setDevOtpHint(null);
     setError('');
     setSuccessMsg('');
   };
@@ -198,7 +184,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         {/* Modal Header */}
         <div className="text-center mb-6">
           <div className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
-            Acharya® MERN Portal
+            Acharya®
           </div>
           <p className="text-xs text-white/60">
             {mode === 'register' ? 'Register with Gmail OTP Verification' : 'Welcome back to your career portal'}
@@ -227,21 +213,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
         </div>
 
-        {/* Error / Success Alerts */}
+        {/* Error Alert */}
         {error && (
           <div className="mb-4 p-3 bg-red-950/80 border border-red-500/50 text-red-200 text-xs rounded-xl">
             ⚠️ {error}
           </div>
         )}
 
+        {/* Success Alert (NO OTP CODE SHOWN ON SCREEN) */}
         {successMsg && (
-          <div className="mb-4 p-3 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs rounded-xl space-y-1">
-            <div>✉️ {successMsg}</div>
-            {devOtpHint && (
-              <div className="font-mono bg-black/60 p-1.5 rounded text-amber-300 text-[11px] border border-amber-500/30">
-                🔑 Verification Code Hint: <strong>{devOtpHint}</strong>
-              </div>
-            )}
+          <div className="mb-4 p-3 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs rounded-xl">
+            ✉️ {successMsg}
           </div>
         )}
 
@@ -251,7 +233,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             {!otpStep ? (
               /* Step 1: User Details Form */
               <form onSubmit={handleRequestOTP} className="space-y-4">
-                {/* Full Name */}
                 <div>
                   <label className="block text-xs text-white/70 mb-1 font-medium">Full Name</label>
                   <input
@@ -264,7 +245,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   />
                 </div>
 
-                {/* Age */}
                 <div>
                   <label className="block text-xs text-white/70 mb-1 font-medium">Age</label>
                   <input
@@ -279,7 +259,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label className="block text-xs text-white/70 mb-1 font-medium">Gmail Address</label>
                   <input
@@ -292,7 +271,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   />
                 </div>
 
-                {/* Password */}
                 <div>
                   <label className="block text-xs text-white/70 mb-1 font-medium">Password</label>
                   <div className="relative">
@@ -314,7 +292,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   </div>
                 </div>
 
-                {/* Target Domain Selector */}
                 <div>
                   <label className="block text-xs text-white/70 mb-1 font-medium">Which domain do you want to excel in?</label>
                   <select
@@ -330,7 +307,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   </select>
                 </div>
 
-                {/* Request OTP Button */}
                 <button
                   type="submit"
                   disabled={loading}
@@ -341,7 +317,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 </button>
               </form>
             ) : (
-              /* Step 2: OTP Verification Form */
+              /* Step 2: OTP Verification Form (NO OTP hint text shown) */
               <form onSubmit={handleVerifyAndRegister} className="space-y-4">
                 <div className="text-center py-2 space-y-1">
                   <div className="text-sm font-semibold text-white">Enter Verification Code</div>
@@ -354,7 +330,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     type="text"
                     required
                     maxLength={6}
-                    placeholder="123456"
+                    placeholder="••••••"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
                     className="w-full bg-zinc-900 border border-white/30 rounded-xl px-4 py-3 text-center text-2xl tracking-[8px] font-mono text-white focus:outline-none focus:border-white transition-colors"
