@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import { seedInitialDomains } from './utils/seedDomains.js';
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -53,13 +55,24 @@ app.get('*', (req, res) => {
 
 // Connect to MongoDB Atlas (db: 'acharya')
 const connectDB = async () => {
+  const directURI = 'mongodb://anilrongali323_db_user:anil123@ac-v7nalij-shard-00-00.ek7mwvf.mongodb.net:27017,ac-v7nalij-shard-00-01.ek7mwvf.mongodb.net:27017,ac-v7nalij-shard-00-02.ek7mwvf.mongodb.net:27017/acharya?ssl=true&replicaSet=atlas-13dkn4-shard-0&authSource=admin&retryWrites=true&w=majority';
+  
   try {
-    await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 8000 });
-    console.log(`  ➜  Database: Connected to MongoDB Atlas (DB: acharya)`);
-    // Seed initial collections if empty
+    await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+    console.log(`  ➜  Database: Connected to MongoDB Atlas via SRV (DB: acharya)`);
     await seedInitialDomains();
-  } catch (error) {
-    console.log(`  ➜  Database Warning: ${error.message}`);
+    return;
+  } catch (srvErr) {
+    console.log(`  ➜  SRV Lookup notice, attempting direct Atlas seedlist connection...`);
+  }
+
+  try {
+    await mongoose.connect(directURI, { serverSelectionTimeoutMS: 5000 });
+    console.log(`  ➜  Database: Connected to MongoDB Atlas via direct seedlist (DB: acharya)`);
+    await seedInitialDomains();
+  } catch (directErr) {
+    console.log(`  ➜  Database Notice: ${directErr.message}`);
+    console.log(`  ➜  Note: If IP is restricted, whitelist 0.0.0.0/0 in MongoDB Atlas -> Network Access tab.`);
   }
 };
 

@@ -14,7 +14,7 @@ export function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [diagnosticTestOpen, setDiagnosticTestOpen] = useState(false);
   const [portalOpen, setPortalOpen] = useState(false);
-  const [portalTab, setPortalTab] = useState<'my-roadmap' | 'advisor' | 'analytics' | 'roadmaps' | 'settings'>('advisor');
+  const [portalTab, setPortalTab] = useState<'my-roadmap' | 'advisor' | 'learn' | 'test' | 'settings'>('advisor');
 
   // Load persistent user profile & roadmap from localStorage if needed
   useEffect(() => {
@@ -75,8 +75,8 @@ export function App() {
       } else {
         setDiagnosticTestOpen(true);
       }
-    } else if (section === 'roadmaps') {
-      setPortalTab('roadmaps');
+    } else if (section === 'roadmaps' || section === 'learn') {
+      setPortalTab('learn');
       setPortalOpen(true);
     } else if (section === 'ai-advisor') {
       setPortalTab('advisor');

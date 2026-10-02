@@ -41,7 +41,6 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
       setCurrentIdx(currentIdx + 1);
       setSelectedOption(userAnswers[currentIdx + 1]);
     } else {
-      // Calculate Score
       let finalScore = 0;
       questionSet.questions.forEach((q, idx) => {
         if (userAnswers[idx] === q.correctAnswer) {
@@ -61,7 +60,6 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
         completedAt: new Date().toLocaleDateString(),
       };
 
-      // Save to MongoDB Express backend API
       try {
         await apiService.saveRoadmap({
           email: user.email,
@@ -73,7 +71,6 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
         console.warn("Backend save roadmap warning:", err);
       }
 
-      // Save to localStorage
       localStorage.setItem('acharya_user', JSON.stringify(updatedUser));
       localStorage.setItem('acharya_roadmap', JSON.stringify(roadmap));
 
@@ -91,22 +88,23 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4 overflow-y-auto animate-fade-in-up">
-      <div className="relative w-full max-w-2xl bg-zinc-950 border border-white/20 p-6 sm:p-8 rounded-2xl shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xl p-4 overflow-y-auto animate-fade-in-up">
+      <div className="relative w-full max-w-2xl bg-white/[0.08] border border-white/20 p-6 sm:p-8 rounded-[28px] shadow-2xl text-white backdrop-blur-2xl">
         
         {/* Header */}
-        <div className="flex justify-between items-center border-b border-white/10 pb-4 mb-6">
+        <div className="flex justify-between items-center border-b border-white/15 pb-4 mb-6">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-                Acharya Placement Assessment
+              <span className="text-xl sm:text-2xl font-medium tracking-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                Acharya® Diagnostic
               </span>
-              <span className="text-xs bg-white/10 text-white/80 px-2.5 py-0.5 rounded-full border border-white/20">
-                5 MCQ Diagnostic
+              <span className="text-lg text-white select-none">✳︎</span>
+              <span className="text-xs bg-white/10 text-white/90 px-3 py-1 rounded-full border border-white/20 font-medium">
+                5 MCQ Test
               </span>
             </div>
             <div className="text-xs text-white/60 mt-1">
-              Domain: <span className="text-white font-medium">{domain}</span>
+              Target Focus: <span className="text-white font-medium">{domain}</span>
             </div>
           </div>
 
@@ -119,11 +117,11 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
         {!testFinished ? (
           <div>
             {/* Progress Bar */}
-            <div className="flex items-center justify-between text-xs text-white/60 mb-2">
+            <div className="flex items-center justify-between text-xs text-white/70 mb-2 font-medium">
               <span>Question {currentIdx + 1} of 5</span>
               <span>{Math.round(((currentIdx + 1) / 5) * 100)}% Completed</span>
             </div>
-            <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden mb-6 border border-white/10">
+            <div className="w-full bg-black/60 h-2.5 rounded-full overflow-hidden mb-6 border border-white/15">
               <div
                 className="bg-white h-full transition-all duration-300"
                 style={{ width: `${((currentIdx + 1) / 5) * 100}%` }}
@@ -132,7 +130,7 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
 
             {/* Question Card */}
             <div className="mb-6">
-              <h3 className="text-lg sm:text-xl font-medium leading-relaxed mb-6">
+              <h3 className="text-lg sm:text-xl font-normal leading-relaxed mb-6 text-white/95">
                 {currentQ.question}
               </h3>
 
@@ -141,7 +139,7 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
                 {currentQ.options.map((opt, optIdx) => {
                   const isSelected = selectedOption === optIdx;
 
-                  let btnStyle = "border-white/15 bg-zinc-900/80 hover:bg-white/10 hover:border-white/50";
+                  let btnStyle = "border-white/15 bg-black/50 hover:bg-white/10 hover:border-white/50";
                   
                   if (isSelected) {
                     btnStyle = "border-white bg-white/25 text-white font-semibold shadow-md ring-1 ring-white/50";
@@ -151,7 +149,7 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
                     <button
                       key={optIdx}
                       onClick={() => handleSelectOption(optIdx)}
-                      className={`w-full text-left p-4 rounded-xl border text-sm sm:text-base transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
+                      className={`w-full text-left p-4 rounded-2xl border text-sm sm:text-base transition-all flex items-start gap-3 cursor-pointer ${btnStyle}`}
                     >
                       <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs flex-shrink-0 mt-0.5 ${
                         isSelected ? 'border-white bg-white text-black font-bold' : 'border-white/30 text-white'
@@ -166,12 +164,12 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-4 border-t border-white/10">
+            <div className="flex justify-between items-center pt-4 border-t border-white/15">
               <div>
                 {currentIdx > 0 ? (
                   <button
                     onClick={handlePrevious}
-                    className="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium border border-white/20 bg-zinc-900 hover:bg-white/10 text-white transition-colors cursor-pointer"
+                    className="px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium border border-white/60 bg-transparent hover:bg-white hover:text-black text-white transition-colors cursor-pointer"
                   >
                     ← Previous
                   </button>
@@ -188,10 +186,10 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
               <button
                 onClick={handleNext}
                 disabled={selectedOption === null}
-                className={`px-6 py-2.5 rounded-xl font-medium text-sm transition-all cursor-pointer flex items-center gap-2 ${
+                className={`px-7 py-3 rounded-full font-medium text-sm transition-all cursor-pointer flex items-center gap-2 border ${
                   selectedOption !== null
-                    ? 'bg-white text-black hover:bg-white/90 shadow-lg'
-                    : 'bg-zinc-800 text-white/40 cursor-not-allowed'
+                    ? 'bg-white text-black hover:bg-black hover:text-white border-white shadow-xl'
+                    : 'bg-white/10 text-white/40 border-white/10 cursor-not-allowed'
                 }`}
               >
                 <span>{currentIdx < 4 ? 'Next Question' : 'Complete Assessment'}</span>
@@ -205,8 +203,10 @@ export const DiagnosticTestModal: React.FC<DiagnosticTestModalProps> = ({
           <div className="py-12 text-center space-y-6">
             <div className="w-16 h-16 mx-auto rounded-full border-4 border-white/20 border-t-white animate-spin" />
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">Saving Score to MongoDB...</h3>
-              <p className="text-sm text-white/60">
+              <h3 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
+                Analyzing Assessment Responses...
+              </h3>
+              <p className="text-sm text-white/70">
                 A.R.I.A is evaluating your responses and generating your customized career roadmap for <span className="text-white font-medium">{domain}</span>.
               </p>
             </div>

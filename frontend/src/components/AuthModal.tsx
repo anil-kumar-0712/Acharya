@@ -29,7 +29,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [targetDomain, setTargetDomain] = useState<TargetDomain>(DOMAIN_OPTIONS[0]);
 
   // OTP Verification State
-  const [otpStep, setOtpStep] = useState(false); // false = enter details, true = enter OTP
+  const [otpStep, setOtpStep] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
       setOtpStep(true);
       setSuccessMsg(`A 6-digit verification code has been sent to ${email.trim()}`);
     } catch (err: any) {
-      // Fallback dev step if network issue, transition cleanly to OTP input
       setOtpStep(true);
       setSuccessMsg(`A 6-digit verification code has been sent to ${email.trim()}`);
     } finally {
@@ -98,7 +97,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         isTestCompleted: res.user.isTestCompleted || false,
       });
     } catch (err: any) {
-      // If offline or local test
       const fallbackUser: UserProfile = {
         name: name.trim(),
         age: Number(age),
@@ -170,34 +168,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 overflow-y-auto animate-fade-in-up">
-      <div className="relative w-full max-w-md bg-zinc-950 border border-white/20 p-6 sm:p-8 rounded-2xl shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xl p-4 overflow-y-auto animate-fade-in-up">
+      <div className="relative w-full max-w-md bg-white/[0.08] border border-white/20 p-6 sm:p-8 rounded-[28px] shadow-2xl text-white backdrop-blur-2xl">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white/60 hover:text-white w-8 h-8 rounded-full bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
+          className="absolute top-5 right-5 text-white/60 hover:text-white w-9 h-9 rounded-full bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
         >
           ✕
         </button>
 
         {/* Modal Header */}
         <div className="text-center mb-6">
-          <div className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: 'var(--font-heading)' }}>
-            Acharya®
+          <div className="flex justify-center items-center gap-2 mb-1">
+            <span className="text-2xl sm:text-3xl font-medium tracking-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+              Acharya®
+            </span>
+            <span className="text-2xl text-white select-none">✳︎</span>
           </div>
-          <p className="text-xs text-white/60">
+          <p className="text-xs text-white/70 font-normal">
             {mode === 'register' ? 'Register with Gmail OTP Verification' : 'Welcome back to your career portal'}
           </p>
         </div>
 
         {/* Mode Tabs */}
-        <div className="flex bg-zinc-900 p-1 rounded-xl mb-6 border border-white/10 text-sm font-medium">
+        <div className="flex bg-black/60 p-1.5 rounded-full mb-6 border border-white/15 text-sm font-medium">
           <button
             type="button"
             onClick={() => { setMode('register'); resetFormState(); }}
-            className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
-              mode === 'register' ? 'bg-white text-black font-semibold shadow' : 'text-white/70 hover:text-white'
+            className={`flex-1 py-2 rounded-full transition-all cursor-pointer ${
+              mode === 'register' ? 'bg-white text-black font-semibold shadow-md' : 'text-white/70 hover:text-white'
             }`}
           >
             Register
@@ -205,8 +206,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           <button
             type="button"
             onClick={() => { setMode('login'); resetFormState(); }}
-            className={`flex-1 py-2 rounded-lg transition-all cursor-pointer ${
-              mode === 'login' ? 'bg-white text-black font-semibold shadow' : 'text-white/70 hover:text-white'
+            className={`flex-1 py-2 rounded-full transition-all cursor-pointer ${
+              mode === 'login' ? 'bg-white text-black font-semibold shadow-md' : 'text-white/70 hover:text-white'
             }`}
           >
             Login
@@ -215,14 +216,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 bg-red-950/80 border border-red-500/50 text-red-200 text-xs rounded-xl">
+          <div className="mb-4 p-3 bg-red-950/80 border border-red-500/50 text-red-200 text-xs rounded-2xl">
             ⚠️ {error}
           </div>
         )}
 
-        {/* Success Alert (NO OTP CODE SHOWN ON SCREEN) */}
+        {/* Success Alert */}
         {successMsg && (
-          <div className="mb-4 p-3 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs rounded-xl">
+          <div className="mb-4 p-3 bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs rounded-2xl">
             ✉️ {successMsg}
           </div>
         )}
@@ -234,19 +235,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               /* Step 1: User Details Form */
               <form onSubmit={handleRequestOTP} className="space-y-4">
                 <div>
-                  <label className="block text-xs text-white/70 mb-1 font-medium">Full Name</label>
+                  <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Full Name</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Sarah Jenkins"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors"
+                    className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/70 mb-1 font-medium">Age</label>
+                  <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Age</label>
                   <input
                     type="number"
                     required
@@ -255,24 +256,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     placeholder="e.g. 24"
                     value={age}
                     onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors"
+                    className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/70 mb-1 font-medium">Gmail Address</label>
+                  <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Gmail Address</label>
                   <input
                     type="email"
                     required
                     placeholder="you@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors"
+                    className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/70 mb-1 font-medium">Password</label>
+                  <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -280,12 +281,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white pr-10 focus:outline-none focus:border-white transition-colors"
+                      className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white pr-12 focus:outline-none focus:border-white transition-colors"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-xs text-white/50 hover:text-white"
+                      className="absolute right-4 top-3 text-xs text-white/60 hover:text-white"
                     >
                       {showPassword ? 'Hide' : 'Show'}
                     </button>
@@ -293,11 +294,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/70 mb-1 font-medium">Which domain do you want to excel in?</label>
+                  <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Which domain do you want to excel in?</label>
                   <select
                     value={targetDomain}
                     onChange={(e) => setTargetDomain(e.target.value as TargetDomain)}
-                    className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors cursor-pointer"
+                    className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white transition-colors cursor-pointer"
                   >
                     {DOMAIN_OPTIONS.map((domain, i) => (
                       <option key={i} value={domain} className="bg-zinc-950 text-white">
@@ -310,14 +311,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full mt-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-white/90 transition-all cursor-pointer shadow-lg text-sm flex items-center justify-center gap-2"
+                  className="w-full mt-6 py-3.5 bg-white text-black border border-black/10 rounded-full text-[15px] font-medium whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-xl flex items-center justify-center gap-2"
                 >
                   <span>{loading ? 'Sending Gmail OTP...' : 'Send Gmail Verification OTP'}</span>
                   <span>✉️</span>
                 </button>
               </form>
             ) : (
-              /* Step 2: OTP Verification Form (NO OTP hint text shown) */
+              /* Step 2: OTP Verification Form */
               <form onSubmit={handleVerifyAndRegister} className="space-y-4">
                 <div className="text-center py-2 space-y-1">
                   <div className="text-sm font-semibold text-white">Enter Verification Code</div>
@@ -333,14 +334,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                     placeholder="••••••"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/30 rounded-xl px-4 py-3 text-center text-2xl tracking-[8px] font-mono text-white focus:outline-none focus:border-white transition-colors"
+                    className="w-full bg-black/50 border border-white/30 rounded-2xl px-4 py-3.5 text-center text-2xl tracking-[8px] font-mono text-white focus:outline-none focus:border-white transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full mt-4 py-3 bg-white text-black font-semibold rounded-xl hover:bg-white/90 transition-all cursor-pointer shadow-lg text-sm flex items-center justify-center gap-2"
+                  className="w-full mt-4 py-3.5 bg-white text-black border border-black/10 rounded-full text-[15px] font-medium whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-xl flex items-center justify-center gap-2"
                 >
                   <span>{loading ? 'Verifying OTP...' : 'Verify OTP & Start 5-MCQ Test'}</span>
                   <span>→</span>
@@ -362,19 +363,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         {mode === 'login' && (
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs text-white/70 mb-1 font-medium">Email Address</label>
+              <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Email Address</label>
               <input
                 type="email"
                 required
                 placeholder="you@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors"
+                className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white focus:outline-none focus:border-white transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-white/70 mb-1 font-medium">Password</label>
+              <label className="block text-xs text-white/70 mb-1 font-medium pl-1">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -382,12 +383,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-zinc-900 border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white pr-10 focus:outline-none focus:border-white transition-colors"
+                  className="w-full bg-black/50 border border-white/20 rounded-full px-5 py-3 text-sm text-white pr-12 focus:outline-none focus:border-white transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-xs text-white/50 hover:text-white"
+                  className="absolute right-4 top-3 text-xs text-white/60 hover:text-white"
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -397,7 +398,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-white/90 transition-all cursor-pointer shadow-lg text-sm flex items-center justify-center gap-2"
+              className="w-full mt-6 py-3.5 bg-white text-black border border-black/10 rounded-full text-[15px] font-medium whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200 cursor-pointer shadow-xl flex items-center justify-center gap-2"
             >
               <span>{loading ? 'Signing in...' : 'Login to Career Portal'}</span>
               <span>→</span>
@@ -405,7 +406,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </form>
         )}
 
-        <div className="mt-4 text-center text-xs text-white/40">
+        <div className="mt-5 text-center text-xs text-white/50">
           {mode === 'register' ? (
             <span>Already have an account? <button onClick={() => { setMode('login'); resetFormState(); }} className="text-white underline cursor-pointer">Login</button></span>
           ) : (
